@@ -1,2 +1,2 @@
 #Image File Location
-IMAGE_FILE_LOCATION = 'images'
+IMAGE_FILE_LOCATION = './images/'
