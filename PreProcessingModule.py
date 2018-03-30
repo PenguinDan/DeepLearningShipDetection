@@ -66,12 +66,25 @@ def get_preprocessed_images(form='none', greyscale=True ,contrast=200):
         if greyscale == True:
             #Greyscale the image
             image = image.convert('L')
+            #Turn it back to RGB so that it has the 3 color values attached
+            #To every pixel
+            image = image.convert('RGB')
         if contrast > 0 :
             #Enhance the contrast of the image by the specified margin
             image = ImageEnhance.Contrast(image).enhance(contrast)
         #Append the object onto the list
         image_list.append(image)
     
+    #If the form == matrix, return a matrix version of the images
+    if form == 'matrix':
+        matrix_image_list = []
+        for image in image_list:
+            matrix_image = np.asarray(image);
+            matrix_image_list.append(matrix_image)
+        #Returns the matrix version of each image
+        return matrix_image_list
+    
+    #Return the list of Image objects
     return image_list
     
         
