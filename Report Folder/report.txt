@@ -1,0 +1,53 @@
+Daniel in charge of data pre-processing module
+Visal in charge of object detection algorithm
+Luis in charge of CNN object classification
+
+Explain project architecture:
+Large Image -> Pre-processing Module -> Object Detection -> Pre-processing Module -> Binary CNN Classification -> Post-Processing Module 
+
+Goal of first pre-processing module:
+	Make the task of object detection easier for the object detection algorithm
+	Inpired by Object detection with image segmentation (show image)
+	Say that we tried Object Detection through Image Segmentation (Selective Search)
+	Also tried Google's Faster-RCNN with ResNet CNN trained with Coco-Dataset 
+	Say that Visal will explain why these didnt work
+
+First pre-processing module attempt:
+	Using Python Image Library : PIL
+	Retrieve the image
+	Greyscale the image
+	Increase contrast to 300% so that the black colors get darker and white colors get whiter
+	Show Img5.png 
+	Show Img1.png, was really happy until tried another image
+	Show Img6.png, next slide
+	Show Img2.png, image contained too much noise
+
+Second pre-processing module attempt:
+	Using Open-CV2 Python API
+	Retrieve the image 
+	Denoise it through Erosion followed by Dilation
+	Patch minor holes in the image through dilation followed by erosion
+	Force the image to be greyscale
+	Show difference between pre-cleaned Img2.png and Img3.png
+	Use a binary treshhold for binary color scheme in image
+	Show threshold of 130 Img7, 100 Img8, 80 Img9
+	Show Img9 and Img6 Side by side and show that all the ships were captured
+	Divided the values by 255, so image is now a mask of 0 and 1 values, gave it to Visal
+
+Object Detection:
+	Based on your research, say why Selective Search doesn't work
+	Faster-RCNN with ResNet CNN does not work because the network was not trained with satelite ship images
+	Object detection should work on ships that are bigger than 80 by 80 too
+
+	Show your attempts and report your image attempts based off on Img5.png
+
+Second Pre-Processing Module:
+	Scale down the image sizes
+
+Binary CNN Classification:
+	CNN tells us which bounding boxes to keep and throw away
+	Draw bounding box on images using post-processing module
+
+Post-Processing Module:
+	Draws bounding boxes
+	

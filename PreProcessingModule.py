@@ -1,7 +1,8 @@
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageOps
 import numpy as np
 import Constants
 import os
+import cv2
 
 ##############################################################################
 #Returns a list of file names for the images
@@ -17,10 +18,11 @@ def get_unprocessed_image_files():
         
     return image_file_list;
 
+
 ##############################################################################
 #Return a list of unprocessed image files
 ##############################################################################
-def get_unprocessed_images(form='none'):
+def get_upr_images(form='none'):
     #Retrieve image file list
     image_file_list = get_unprocessed_image_files()
     #Turn each image file item into an Image object
@@ -44,48 +46,100 @@ def get_unprocessed_images(form='none'):
     
     #Return the list of Image objects
     return image_list
-    
+
+
+#############################################################################
+#Erosion followed by dilation to remove/reduce noise in an image
+#############################################################################
+def cv_opening(img, kernel) :
+    opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+    return opening
+
+
+#############################################################################
+#Dilation followed by erosion to plug in holes in the image
+#############################################################################
+def cv_closing(img, kernel) :
+    closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+    return closing
+
+
+#############################################################################
+#Cleans the image by removing noise and plugging in holes
+#############################################################################
+def clean_image(img, kernel):
+    img = cv_opening(img, kernel)
+    img = cv_closing(img, kernel)
+    return img
 
 ##############################################################################
 #Return a list of preprocessed image files where each image is greyscaled
 #the contrast is increased by a large margin to reduce the number of 
 #color variation
 #############################################################################
-def get_preprocessed_images(form='none', greyscale=True ,contrast=200):
+def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
     #Retrieve image file list
     image_file_list = get_unprocessed_image_files()
     #Turn each image file item into an Image object
     image_list = []
+    #Create a kernel to move through the image
+    kernel = np.ones((5,5), np.uint8)
+    
+    #Counter to see how many images we are working on and break once we reach image_count
+    counter = 0
     
     #Iterate through each file name and turn them into Image objects
     #then, preprocess them before appending it to the list
     for file_name in image_file_list:
-        #The Image object obtained from the file
-        image = Image.open(Constants.IMAGE_FILE_LOCATION + file_name)
-        #Greyscale image if the user wants to
-        if greyscale == True:
-            #Greyscale the image
-            image = image.convert('L')
-            #Turn it back to RGB so that it has the 3 color values attached
-            #To every pixel
-            image = image.convert('RGB')
-        if contrast > 0 :
-            #Enhance the contrast of the image by the specified margin
-            image = ImageEnhance.Contrast(image).enhance(contrast)
+        counter += 1
+        image = None
+        if greyscale != None: 
+            #The Image object obtained from the file in greyscale mode
+            image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_GRAYSCALE)
+            #Check if the Image should be a binary grey scale with only 0 and 255 values
+            if greyscale == 'binary':
+                #Retrieve the shape of the image
+                image_height = image.shape[0]
+                image_width = image.shape[1]
+                #Single for loop to iterate through the matrix
+                for i in range(image_height):
+                    for j in range(image_width):
+                        if image[i][j] < greyscale_threshhold:
+                            image[i][j] = 0
+                        else :
+                            image[i][j] = 255      
+        else :
+            #The Image object obtained from the file in normal mode
+            image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
+        #Clean the image
+        image = clean_image(image, kernel)
         #Append the object onto the list
         image_list.append(image)
-    
-    #If the form == matrix, return a matrix version of the images
-    if form == 'matrix':
-        matrix_image_list = []
-        for image in image_list:
-            matrix_image = np.asarray(image);
-            matrix_image_list.append(matrix_image)
-        #Returns the matrix version of each image
-        return matrix_image_list
-    
+        
+        #Break if we pre-processed enough images
+        if counter == max_images:
+            break;
+        
     #Return the list of Image objects
     return image_list
     
-        
+
+##############################################################################
+#Displays an image until the user presses a key
+#############################################################################
+def displayImage(image):
+    #Create a window object
+    cv2.namedWindow("image_window", cv2.WINDOW_NORMAL)
+    #Show the image within that window
+    cv2.imshow("image_window", image)
+    #Makes the window show the image until the user presses a value
+    cv2.waitKey()
+    #User has pressed a value
+    cv2.destroyAllWindows()
     
+
+##############################################################################
+#Saves an image inside of the object detection test folder
+#############################################################################
+def saveImage(image, file_name = "test.png"):
+    cv2.imwrite(Constants.PR_SAVE_LOCATION + file_name, image)

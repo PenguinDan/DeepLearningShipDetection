@@ -8,12 +8,13 @@ import skimage.data
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import selectivesearch
+import Constants
 
 
 def main():
 
     # loading astronaut image
-    img = skimage.data.load("/home/thai/Desktop/test.png")
+    img = skimage.data.load(Constants.SELECTIVE_SEARCH_TEST_FILE)
 
     # perform selective search
     img_lbl, regions = selectivesearch.selective_search(
