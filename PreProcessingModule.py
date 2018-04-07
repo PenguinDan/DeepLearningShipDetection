@@ -124,3 +124,11 @@ def display_image(image):
 #############################################################################
 def saveImage(image, file_name = "test.png"):
     cv2.imwrite(Constants.PR_SAVE_LOCATION + file_name, image)
+    
+##############################################################################
+#Creates a bounding box in the given image depending on the top left coordinates
+#############################################################################
+def create_bbox(image, bbox_locations, box_thickness = 3):
+    for x, y, width, height in bbox_locations:
+        cv2.rectangle(image, (x,y), (x+width, y+height), (255, 0, 0), box_thickness)
+    return image
