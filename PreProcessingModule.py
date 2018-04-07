@@ -8,44 +8,15 @@ import cv2
 #Returns a list of file names for the images
 ##############################################################################
 def get_unprocessed_image_files():
-    
+
     #Stores all of the big images in this list
     image_file_list = None
-    
+
     #Retrieve image paths
     for root, dirs, files in os.walk(Constants.IMAGE_FILE_LOCATION):
         image_file_list = files;
-        
+
     return image_file_list;
-
-
-##############################################################################
-#Return a list of unprocessed image files
-##############################################################################
-def get_upr_images(form='none'):
-    #Retrieve image file list
-    image_file_list = get_unprocessed_image_files()
-    #Turn each image file item into an Image object
-    image_list = []
-    
-    #Iterate through each file name and turn them into Image objects
-    for file_name in image_file_list:
-        #The Image object obtained from the file
-        image = Image.open(Constants.IMAGE_FILE_LOCATION + file_name)
-        #Append the object onto the list
-        image_list.append(image)
-    
-    #If the form == matrix, return a matrix version of the images
-    if form == 'matrix':
-        matrix_image_list = []
-        for image in image_list:
-            matrix_image = np.asarray(image);
-            matrix_image_list.append(matrix_image)
-        #Returns the matrix version of each image
-        return matrix_image_list
-    
-    #Return the list of Image objects
-    return image_list
 
 
 #############################################################################
@@ -74,7 +45,7 @@ def clean_image(img, kernel):
 
 ##############################################################################
 #Return a list of preprocessed image files where each image is greyscaled
-#the contrast is increased by a large margin to reduce the number of 
+#the contrast is increased by a large margin to reduce the number of
 #color variation
 #############################################################################
 def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
@@ -84,16 +55,16 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
     image_list = []
     #Create a kernel to move through the image
     kernel = np.ones((5,5), np.uint8)
-    
+
     #Counter to see how many images we are working on and break once we reach image_count
     counter = 0
-    
+
     #Iterate through each file name and turn them into Image objects
     #then, preprocess them before appending it to the list
     for file_name in image_file_list:
         counter += 1
         image = None
-        if greyscale != None: 
+        if greyscale != None:
             #The Image object obtained from the file in greyscale mode
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_GRAYSCALE)
             #Check if the Image should be a binary grey scale with only 0 and 255 values
@@ -107,7 +78,7 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
                         if image[i][j] < greyscale_threshhold:
                             image[i][j] = 0
                         else :
-                            image[i][j] = 255      
+                            image[i][j] = 255
         else :
             #The Image object obtained from the file in normal mode
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
@@ -115,19 +86,29 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
         image = clean_image(image, kernel)
         #Append the object onto the list
         image_list.append(image)
-        
+
         #Break if we pre-processed enough images
         if counter == max_images:
             break;
-        
+
     #Return the list of Image objects
     return image_list
-    
+
+##############################################################################
+#Creates a binary matrix of 0 and 1 values
+#############################################################################
+def normalize_image(image, reverse = False) :
+    if reverse == False:
+        image /= 255
+    else:
+        image *= 255
+
+    return image
 
 ##############################################################################
 #Displays an image until the user presses a key
 #############################################################################
-def displayImage(image):
+def display_image(image):
     #Create a window object
     cv2.namedWindow("image_window", cv2.WINDOW_NORMAL)
     #Show the image within that window
@@ -136,7 +117,7 @@ def displayImage(image):
     cv2.waitKey()
     #User has pressed a value
     cv2.destroyAllWindows()
-    
+
 
 ##############################################################################
 #Saves an image inside of the object detection test folder
