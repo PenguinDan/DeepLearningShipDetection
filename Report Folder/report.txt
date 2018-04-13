@@ -34,6 +34,13 @@ Second pre-processing module attempt:
 	Show Img9 and Img6 Side by side and show that all the ships were captured
 	Divided the values by 255, so image is now a mask of 0 and 1 values, gave it to Visal
 
+Third pre-processing module attempt:
+	Ship shapes were disappearing from images
+	Did the opposite of what was recommended by open-cv and plugged holes then denoised
+	Was able to achieve more realistic ship images and increase threshhold to a higher value
+	thereby allowing us to isolate the ships from the water further.
+	Also eliminates sun spots in the water
+
 Object Detection:
 	Based on your research, say why Selective Search doesn't work
 	Faster-RCNN with ResNet CNN does not work because the network was not trained with satelite ship images

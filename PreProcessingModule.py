@@ -36,11 +36,11 @@ def cv_closing(img, kernel) :
 
 
 #############################################################################
-#Cleans the image by removing noise and plugging in holes
+#Cleans the image by plugging holes and removing noise
 #############################################################################
 def clean_image(img, kernel):
-    img = cv_opening(img, kernel)
     img = cv_closing(img, kernel)
+    img = cv_opening(img, kernel)
     return img
 
 ##############################################################################
