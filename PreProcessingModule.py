@@ -17,7 +17,7 @@ def get_unprocessed_image_files():
         image_file_list = files;
 
     return image_file_list;
-
+ 
 
 #############################################################################
 #Erosion followed by dilation to remove/reduce noise in an image
@@ -117,7 +117,6 @@ def display_image(image):
     cv2.waitKey()
     #User has pressed a value
     cv2.destroyAllWindows()
-
 
 ##############################################################################
 #Saves an image inside of the object detection test folder
