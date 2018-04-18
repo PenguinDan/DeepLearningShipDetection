@@ -5,27 +5,37 @@ from keras.optimizers import SGD
 from keras import metrics
 
 
-def build_CNN(learning_rate, decay_rate, momentum_value):
+def build_CNN(learning_rate, decay_rate, momentum_value, structure):
     #Build the CNN model by modifying VGGNet to fit the image size
     model = Sequential()
     
     model.add(Conv2D(64, (3, 3), activation='relu', padding = 'same', input_shape = (80, 80, 3)))
     model.add(Conv2D(64, (3, 3), activation='relu', padding = 'same'))
-    model.add(MaxPooling2D((2, 2)))
+    if structure[0]:
+        model.add(MaxPooling2D((2, 2)))
     
     model.add(Conv2D(128, (3, 3), activation='relu', padding = 'same'))
     model.add(Conv2D(128, (3, 3), activation='relu', padding = 'same'))
-    model.add(MaxPooling2D((2, 2)))
-    
+    if structure[1]:
+        model.add(MaxPooling2D((2, 2)))
+
     model.add(Conv2D(256, (3, 3), activation='relu', padding = 'same'))
     model.add(Conv2D(256, (3, 3), activation='relu', padding = 'same'))
-    model.add(MaxPooling2D((2, 2)))
+    if structure[2]:
+        model.add(MaxPooling2D((2, 2)))
+
+    model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
+    if structure[3]:
+        model.add(MaxPooling2D((2, 2)))
     
     model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
     model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
     model.add(Conv2D(512, (3, 3), activation='relu', padding = 'same'))
-    model.add(MaxPooling2D((2, 2)))
-    
+    if structure[4]:
+        model.add(MaxPooling2D((2, 2)))
+
     model.add(Flatten())
     model.add(Dense(1, activation='sigmoid'))
     
@@ -47,4 +57,4 @@ def train_CNN(model, data, labels, batch, epoch_size):
 
 def test_CNN(model, data, labels, batch):
     
-    print(model.evaluate(data, labels, batch_size=batch))
+    return model.evaluate(data, labels, batch_size=batch)

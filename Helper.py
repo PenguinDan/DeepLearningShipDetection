@@ -2,8 +2,6 @@
 import json
 import Constants
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
 
 
 def divide_data():
@@ -59,11 +57,7 @@ def load_data(data_location):
         data.append(np.transpose(np.resize(img, (3,80,80))))
 
     return np.array(data), np.array(labels)
-    
-    
-
-
-    
+       
 
   
 load_data(Constants.TEST_SMALL_IMAGE_DATASET)
