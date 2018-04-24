@@ -69,16 +69,8 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_GRAYSCALE)
             #Check if the Image should be a binary grey scale with only 0 and 255 values
             if greyscale == 'binary':
-                #Retrieve the shape of the image
-                image_height = image.shape[0]
-                image_width = image.shape[1]
-                #Single for loop to iterate through the matrix
-                for i in range(image_height):
-                    for j in range(image_width):
-                        if image[i][j] < greyscale_threshhold:
-                            image[i][j] = 0
-                        else :
-                            image[i][j] = 255
+                image[image < greyscale_threshhold] = 0
+                image[image > greyscale_threshhold] = 255
         else :
             #The Image object obtained from the file in normal mode
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
