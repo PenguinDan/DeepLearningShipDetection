@@ -3,36 +3,34 @@ import PreProcessingModule as ppm
 from skimage.filters import sobel
 from skimage import morphology
 from scipy import ndimage as ndi
+import pdb
 
-#Declare golbal variable for the max index of picture
 maxXAxis = 0
 maxYAxis = 0
 testWeight = 0
-def main():
-    imgList = ppm.get_pr_images(max_images = 8, greyscale='binary', greyscale_threshhold = 104)
-    shipImg = imgList[0]
-        
+
+def detect(shipImg):
     # Region-based segmentation
     # =========================
     #
     # We therefore try a region-based method using the watershed transform.
     # First, we find an elevation map using the Sobel gradient of the image.
     elevation_map = sobel(shipImg)
-    
+
     ######################################################################
     # Next we find markers of the background and the coins based on the extreme
     # parts of the histogram of grey values.
     markers = np.zeros_like(shipImg)
     markers[shipImg < 30] = 1
     markers[shipImg > 100] = 2
-    
+
     ######################################################################
     # Finally, we use the watershed transform to fill regions of the elevation
     # map starting from the markers determined above:
     currImg = morphology.watershed(elevation_map, markers)
-    
-    
-    
+
+
+
     currImg = ndi.binary_fill_holes(currImg - 1)
     currImg = currImg * 1
     currImg = currImg.astype('uint8')
@@ -69,12 +67,13 @@ def main():
         startX = 0
         endX = 0
         startY = endY
-    
-            
+
+
     ppm.create_bbox(shipImg, objectList, box_thickness = 1)
     ppm.display_image(shipImg)
     ppm.saveImage(shipImg)
     return objectList
+
 #Find the weight for the specific poistion
 def find_weight(img, startX, endX, startY, endY):
     return np.sum(img[startY:endY,startX:endX])
@@ -86,7 +85,7 @@ def find_object(currImg, startX, endX, startY, endY):
     global testWeight
     x = 0
     y = 0
-    width = 0 
+    width = 0
     length = 0
     while(currYAxis < endY):
         if(find_weight(currImg, startX, endX, currYAxis, currYAxis + 1) > 0):
@@ -103,9 +102,9 @@ def find_object(currImg, startX, endX, startY, endY):
                     testWeight = 0
                     break;
         currYAxis += 1
-    
+
     return possibleLocation
-                    
+
 #Get the starting X position
 def get_start_x_position(currImg, startX, endX, currY):
     currXPosition = startX
@@ -116,7 +115,7 @@ def get_start_x_position(currImg, startX, endX, currY):
                 if(currImg[currY][currXPosition - 1] == 0):
                     break;
                 else:
-                    currXPosition -= 1          
+                    currXPosition -= 1
             else:
                 break
     elif(np.sum(currImg[currY][startX:endX]) > 0):
@@ -130,12 +129,12 @@ def get_start_x_position(currImg, startX, endX, currY):
                     currXPosition += 1
             else:
                 break
-        
+
     return currXPosition
 
 #Get the ending X position
 def get_end_x_position(currImg, startX, currY):
-    global testWeight
+    global testWeight 
     currXPosition = startX
     #Try to find where the X axis will end
     while True:
@@ -154,7 +153,7 @@ def find_y_axis_up(currImg, startX, startY):
     indexList = [[currY, currXStart, currXEnd]]
     while True:
         currY -= 1
-        if(currY > 0 and np.sum(currImg[currY][currXStart:currXEnd]) > 0):    
+        if(currY > 0 and np.sum(currImg[currY][currXStart:currXEnd]) > 0):
             currXStart = get_start_x_position(currImg, currXStart, currXEnd, currY)
             currXEnd = get_end_x_position(currImg, currXStart, currY) + 1
             if(currXEnd == -1):
@@ -173,7 +172,7 @@ def find_y_axis_down(currImg, startX, startY):
     indexList = [[currY, currXStart, currXEnd]]
     while True:
         currY += 1
-        if(currY + 1 < maxYAxis and np.sum(currImg[currY][currXStart:currXEnd]) > 0):    
+        if(currY + 1 < maxYAxis and np.sum(currImg[currY][currXStart:currXEnd]) > 0):
             currXStart = get_start_x_position(currImg, currXStart, currXEnd, currY)
             currXEnd = get_end_x_position(currImg, currXStart, currY) + 1
             indexList.append([currY, currXStart, currXEnd])
@@ -201,9 +200,6 @@ def remove_object(currImg, indexList):
         smallestX -= 5
     if(smallestY > 5):
         smallestY -= 5
-    
-    
+
+
     return smallestX, smallestY, biggestX - smallestX + 10, biggestY - smallestY + 10, currImg
-                     
-if __name__ == "__main__":
-    main()

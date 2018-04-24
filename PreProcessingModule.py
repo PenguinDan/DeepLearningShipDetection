@@ -17,7 +17,7 @@ def get_unprocessed_image_files():
         image_file_list = files;
 
     return image_file_list;
- 
+
 
 #############################################################################
 #Erosion followed by dilation to remove/reduce noise in an image
@@ -48,10 +48,10 @@ def clean_image(img, kernel):
 #the contrast is increased by a large margin to reduce the number of
 #color variation
 #############################################################################
-def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
+def get_pr_images(max_images = 1,greyscale=None, greyscale_threshhold = 80):
     #Retrieve image file list
     image_file_list = get_unprocessed_image_files()
-    #Turn each image file item into an Image object
+    #Place to store the Image objects
     image_list = []
     #Create a kernel to move through the image
     kernel = np.ones((5,5), np.uint8)
@@ -61,8 +61,8 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
 
     #Iterate through each file name and turn them into Image objects
     #then, preprocess them before appending it to the list
-    for file_name in image_file_list:
-        counter += 1
+    for i in range(max_images):
+        file_name = image_file_list[i]
         image = None
         if greyscale != None:
             #The Image object obtained from the file in greyscale mode
@@ -84,6 +84,21 @@ def get_pr_images(max_images = 1, greyscale=None, greyscale_threshhold = 80):
             break;
 
     #Return the list of Image objects
+    return image_list
+
+def get_upr_images(max_images = 1) :
+    #Retrieve image file list
+    image_file_list = get_unprocessed_image_files()
+    #Stores the image objects
+    image_list = []
+
+    for i in range(max_images):
+        file_name = image_file_list[i]
+        #Instantiate the image
+        image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
+        #Add the image to the file list
+        image_list.append(image)
+
     return image_list
 
 ##############################################################################
@@ -115,7 +130,7 @@ def display_image(image):
 #############################################################################
 def saveImage(image, file_name = "test.png"):
     cv2.imwrite(Constants.PR_SAVE_LOCATION + file_name, image)
-    
+
 ##############################################################################
 #Creates a bounding box in the given image depending on the top left coordinates
 #############################################################################
