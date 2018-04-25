@@ -16,12 +16,15 @@ norm_image_list = ppm.get_upr_images(max_images = IMAGE_COUNT)
 bounded_image_list = []
 
 #Create probable bounding boxes around items in the image and put them in a list
-for curr_image in len(pr_image_list) :
+for i in range(len(pr_image_list)):
     #Retrieve the locations of all of the objects
-    object_locations = od.detect(curr_image)
+    curr_pr_image = pr_image_list[i]
+    curr_upr_image = norm_image_list[i]
+    object_locations = od.detect(curr_pr_image, activation_weight_threshhold = 3000, 
+                                 max_weight_threshhold = 8000, stride_size = 100)
     #Create the bounding box around the original image
-    bounded_image = ppm.create_bbox(shipImg, object_locations, box_thickness = 1)
+    bounded_image = ppm.create_bbox(curr_pr_image, object_locations, box_thickness = 1)
     bounded_image_list.append(bounded_image)
 
 #Display the image
-ppm.display_image(shipImg)
+ppm.display_image(bounded_image_list[0])
