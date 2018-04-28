@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
 from keras.optimizers import SGD
 from keras import metrics
+from keras.models import load_model 
+import h5py
 
 
 def build_CNN(learning_rate, decay_rate, momentum_value, structure):
@@ -57,4 +61,8 @@ def train_CNN(model, data, labels, batch, epoch_size):
 
 def test_CNN(model, data, labels, batch):
     
-    return model.evaluate(data, labels, batch_size=batch)
+    loss, accuracy = model.evaluate(data, labels, batch_size=batch)
+    print("Loss: ", loss, "     Accuracy: ", accuracy)
+    
+    return loss, accuracy
+
