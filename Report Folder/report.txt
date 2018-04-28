@@ -25,21 +25,25 @@ First pre-processing module attempt:
 Second pre-processing module attempt:
 	Using Open-CV2 Python API
 	Retrieve the image 
-	Denoise it through Erosion followed by Dilation
+	Use a binary treshhold for binary color scheme in image
+	Erosion followed by Dilation using a 5 x 5 kernel
 	Patch minor holes in the image through dilation followed by erosion
 	Force the image to be greyscale
 	Show difference between pre-cleaned Img2.png and Img3.png
-	Use a binary treshhold for binary color scheme in image
 	Show threshold of 130 Img7, 100 Img8, 80 Img9
 	Show Img9 and Img6 Side by side and show that all the ships were captured
 	Divided the values by 255, so image is now a mask of 0 and 1 values, gave it to Visal
 
 Third pre-processing module attempt:
-	Ship shapes were disappearing from images
-	Did the opposite of what was recommended by open-cv and plugged holes then denoised
-	Was able to achieve more realistic ship images and increase threshhold to a higher value
-	thereby allowing us to isolate the ships from the water further.
-	Also eliminates sun spots in the water
+	Using Open-CV2 Python API
+	Retrieve the image
+	Use a binary threshhold with a high value (104) so that less whites show
+	Erosion followed by Dilation using a 3x3 kernel
+	Dilate the image again in order to fill in the empty spots using a 4x4 kernel and 2 iterations
+	Erode the image to get reduce the now bloated size of ships using a 2x2 kernel and 1 iteration
+	Show different between image 9 and image 10, it keeps alot more of the information and connects everything together
+	Show image11 and then image 12 and the difference
+
 
 Object Detection:
 	Based on your research, say why Selective Search doesn't work

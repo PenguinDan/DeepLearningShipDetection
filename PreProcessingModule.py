@@ -38,9 +38,17 @@ def cv_closing(img, kernel) :
 #############################################################################
 #Cleans the image by plugging holes and removing noise
 #############################################################################
-def clean_image(img, kernel):
-    img = cv_closing(img, kernel)
+#Cleans the image and combines spaces on the image
+def clean_image(img, kernel) :
     img = cv_opening(img, kernel)
+    img = cv_closing(img, kernel)
+    #Dilate the image in order to fill in empty spots
+    dilation_kernel = np.ones((4,4), np.uint8)  
+    img = cv2.dilate(img, dilation_kernel, iterations = 2)
+    #Attempt to return the objects to their normal sizes
+    erosion_kernel = np.ones((2,2), np.uint8)
+    img = cv2.erode(img, erosion_kernel, iterations = 1)
+                
     return img
 
 ##############################################################################
@@ -54,7 +62,7 @@ def get_pr_images(max_images = 1,greyscale=None, greyscale_threshhold = 80):
     #Place to store the Image objects
     image_list = []
     #Create a kernel to move through the image
-    kernel = np.ones((5,5), np.uint8)
+    kernel = np.ones((3,3), np.uint8)
 
     #Counter to see how many images we are working on and break once we reach image_count
     counter = 0
@@ -138,3 +146,78 @@ def create_bbox(image, bbox_locations, box_thickness = 3):
     for x, y, width, height in bbox_locations:
         cv2.rectangle(image, (x,y), (x+width, y+height), (255, 0, 0), box_thickness)
     return image
+
+##############################################################################
+#Scales the bounding boxes
+#############################################################################
+def scale_bbox(image_width, image_height, bbox_locations, MAX_IMAGE_HEIGHT = 80, MAX_IMAGE_WIDTH = 80):
+    new_bbox_locations = list()
+    for x, y, width, height in bbox_locations:
+        #Get the center of the image width wise
+        horizontal_center = (2 * x + width) // 2
+        #Get the center of the image height wise
+        vertical_center = (2 * y + height) // 2
+        if (width < MAX_IMAGE_WIDTH and height < MAX_IMAGE_HEIGHT) :
+            x = horizontal_center - (MAX_IMAGE_WIDTH // 2)
+            y = vertical_center - (MAX_IMAGE_HEIGHT // 2)
+            #Check if the width wise boundary boxes go beyond the boundary
+            if(x < 0) :
+                #If the image goes behind the boundary, just set it as the boundary
+                x = 0
+            elif(x + MAX_IMAGE_WIDTH > image_width) :
+                #If the image goes beyond the boundary, just set it as the boundary - MAX_IMAGE_WIDTH
+                x = image_width - MAX_IMAGE_WIDTH
+            #Check if the height wise boundary boxes go beyong the boundary
+            if(y < 0) :
+                #If the image goes behind the boundary
+                y = 0
+            elif(y + MAX_IMAGE_HEIGHT > image_height) :
+                #If the image goes beyong the boundary, just set it as the boundary - MAX_IMAGE_HEIGHT
+                y = image_height - MAX_IMAGE_HEIGHT
+            #Set the new size of the images
+            width = MAX_IMAGE_WIDTH
+            height = MAX_IMAGE_HEIGHT
+        else:
+            #Here, either one side is greater than MAX, create a square to keep spatial details
+            if(height > width):
+                #Make the Width the same size as the height
+                x = horizontal_center - (height // 2)
+                if(x < 0):
+                    #If the image goes behind the boundary, set it as the boundary
+                    x = 0
+                elif(x + height > image_width):
+                    #If the image goes beyond the boundary, set it as the boundary - height
+                    x = image_width - height
+                width = height
+            elif(width > height):
+                #Make the height the same size as the width
+                y = vertical_center - (width // 2)
+                if(y < 0):
+                    #If the image goes behind the boundaryu, set it as the boundary
+                    y = 0
+                elif(y + width > image_height):
+                    #If the image goes beyond the boundary, set is as the boundary - width
+                    y = image_height - width
+                height = width
+        #Store the newly created bounding box
+        new_bbox_locations.append((x,y,width,height))
+    return new_bbox_locations
+
+##############################################################################
+#Crop images from the original image
+#############################################################################
+def crop(image, bbox_set, set_width = 80, set_height = 80) :
+    images = list()
+    #Iteratively crop the images and put them into a list
+    for x, y, width, height in bbox_set:
+        cropped_image = image[y: y+ height, x: x+width]
+        resized_image = cv2.resize(cropped_image, (set_width, set_height), interpolation = cv2.INTER_CUBIC)
+        images.append(cropped_image)
+        
+    return images
+    
+    
+    
+    
+    
+    
