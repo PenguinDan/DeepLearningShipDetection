@@ -5,3 +5,4 @@ PR_SAVE_LOCATION = "./object_detection_test/";
 FULL_SMALL_IMAGE_DATASET = './smallShipData.json'
 TEST_SMALL_IMAGE_DATASET = 'small_test_data.txt'
 TRAINING_SMALL_IMAGE_DATASET = 'small_training_data.txt'
+TRAINED_CNN_MODEL = 'trained_CNN.h5'

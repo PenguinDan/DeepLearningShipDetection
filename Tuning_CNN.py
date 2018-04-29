@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from CNN import build_CNN, train_CNN, test_CNN
+from CNN import build_CNN, train_CNN, test_CNN, save_CNN, load_CNN
 from Helper import load_data
 import numpy as np
 import Constants
@@ -38,6 +38,7 @@ def k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, struct
 
     return model, average_loss, average_accuracy
 
+
 def test_models(k, learning_rate, decay_rate, momentum_value, data, labels, batch_size, epoch):
     model_1, loss_1, accuracy_1 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [False, True, True, True, True], data, labels, batch_size, epoch)
     model_2, loss_2, accuracy_2 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [True, False, True, True, True], data, labels, batch_size, epoch)
@@ -53,7 +54,10 @@ def test_models(k, learning_rate, decay_rate, momentum_value, data, labels, batc
 
 
 x, y = load_data(Constants.TRAINING_SMALL_IMAGE_DATASET)
-test_models(5, 0.0010, 1e-6, 0.9, x, y, 50, 100)
 
+# test_models(5, 0.0010, 1e-6, 0.9, x, y, 50, 100)
 
+model = build_CNN(0.0010, 1e-6, 0.9, [False, True, True, True, True])
+model = train_CNN(model, x, y, 50, 100)
 
+save_CNN(model, Constants.TRAINED_CNN_MODEL)

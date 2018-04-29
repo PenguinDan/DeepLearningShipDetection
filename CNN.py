@@ -66,3 +66,13 @@ def test_CNN(model, data, labels, batch):
     
     return loss, accuracy
 
+
+def save_CNN(model, location):
+    model.save(location)
+
+def load_CNN(location):
+    return load_model(location)
+
+def predict_CNN(model, x):
+    y = model.predict(x, 50)
+    return y
