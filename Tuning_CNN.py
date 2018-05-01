@@ -1,21 +1,27 @@
 # -*- coding: utf-8 -*-
-from CNN import build_CNN, train_CNN, test_CNN, save_CNN, load_CNN
-from Helper import load_data
+from CNN import build_CNN, train_CNN, test_CNN, save_CNN, load_CNN, train_generator_CNN
+from Helper import load_data, data_augmentation
 import numpy as np
 import Constants
 
 def k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, structure, data, labels, batch_size, epoch):
     
+    #initialize values
     val_size = int(len(data)/k)
     all_loss_scores = []
     all_accuracy_scores = []
     
+    #run through k iterations
     for i in range(k):
         print('Fold #', i)
+
+        #Divide the data into training and validation
+        #Create the validation data
         val_data = data[i * val_size: (i+1) * val_size]
         val_labels = labels[i * val_size: (i+1) * val_size]
         model = build_CNN(learning_rate, decay_rate, momentum_value, structure)
 
+        #Create the training dataset
         train_data = np.concatenate(
             [data[:i * val_size],
             data[(i+1) * val_size:]], 
@@ -28,17 +34,24 @@ def k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, struct
             axis = 0
         )
 
+        #Train the model
         model = train_CNN(model, train_data, train_labels, batch_size, epoch)
+
+        #test the model on the validation dataset
         loss, accuracy = test_CNN(model, val_data, val_labels, batch_size)
+
+        #save the loss and accuracy values
         all_loss_scores.append(loss)
         all_accuracy_scores.append(accuracy)
 
+    #average all the loss and accuracy values from all k folds
     average_loss = np.mean(all_loss_scores)
     average_accuracy = np.mean(all_accuracy_scores)
 
+    #return the averages
     return model, average_loss, average_accuracy
 
-
+#Tests the 5 different possible variations of VGG-16 for our data using k-fold validation and outputs the results to the console
 def test_models(k, learning_rate, decay_rate, momentum_value, data, labels, batch_size, epoch):
     model_1, loss_1, accuracy_1 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [False, True, True, True, True], data, labels, batch_size, epoch)
     model_2, loss_2, accuracy_2 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [True, False, True, True, True], data, labels, batch_size, epoch)
@@ -46,6 +59,7 @@ def test_models(k, learning_rate, decay_rate, momentum_value, data, labels, batc
     model_4, loss_4, accuracy_4 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [True, True, True, False, True], data, labels, batch_size, epoch)
     model_5, loss_5, accuracy_5 = k_fold_cross_validation(k, learning_rate, decay_rate, momentum_value, [True, True, True, True, False], data, labels, batch_size, epoch)
 
+    #output results to the console
     print("\n\n\n\nModel 1 Loss: ", loss_1, "       Accuracy: ", accuracy_1)
     print("Model 2 Loss: ", loss_2, "       Accuracy: ", accuracy_2)
     print("Model 3 Loss: ", loss_3, "       Accuracy: ", accuracy_3)
@@ -53,11 +67,20 @@ def test_models(k, learning_rate, decay_rate, momentum_value, data, labels, batc
     print("Model 5 Loss: ", loss_5, "       Accuracy: ", accuracy_5)
 
 
-x, y = load_data(Constants.TRAINING_SMALL_IMAGE_DATASET)
+x, y = load_data(Constants.OTHER_TRAINING_SMALL_IMAGE_DATASET)
 
-# test_models(5, 0.0010, 1e-6, 0.9, x, y, 50, 100)
+# test_models(5, 0.0010, 1e-6, 0.9, x, y, 50, 10)
 
+# model = build_CNN(0.0010, 1e-6, 0.9, [False, True, True, True, True])
+# model = train_CNN(model, x, y, 50, 100)
+# save_CNN(model, Constants.OTHER_TRAINED_CNN_MODEL)
+
+
+
+generator = data_augmentation(x, y)
 model = build_CNN(0.0010, 1e-6, 0.9, [False, True, True, True, True])
-model = train_CNN(model, x, y, 50, 100)
+model = train_generator_CNN(model, generator, 100, 100)
+save_CNN(model, Constants.OTHER_GENERATOR_TRAINED_CNN_MODEL)
 
-save_CNN(model, Constants.TRAINED_CNN_MODEL)
+# model = load_CNN(Constants.OTHER_GENERATOR_TRAINED_CNN_MODEL)
+# test_CNN(model, x, y, 50)

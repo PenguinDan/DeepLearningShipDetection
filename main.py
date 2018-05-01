@@ -11,7 +11,7 @@ IMAGE_COUNT = 2
 
 #Get a list of pre-processed images
 pr_image_list = ppm.get_pr_images(max_images = IMAGE_COUNT, greyscale='binary',
-    greyscale_threshhold = GREYSCALE_THRESHHOLD);
+    greyscale_threshhold = GREYSCALE_THRESHHOLD)
 #Get a list of nomral images
 norm_image_list = ppm.get_upr_images(max_images = IMAGE_COUNT)
 #Stores the cropped images whose shape is 80x80x3
@@ -21,7 +21,7 @@ cropped_image_list = []
 opt_bbox = None
 
 #Loads the stored CNN model
-model = CNN.load_CNN(const.TRAINED_CNN_MODEL)
+model = CNN.load_CNN(const.GENERATOR_TRAINED_CNN_MODEL_THREE)
 bounded_image_list = []
 
 #Create probable bounding boxes around items in the image and put them in a list
@@ -46,11 +46,11 @@ for curr_image_index in range(len(pr_image_list)) :
     #Only save objects whose probability to be a ship is over 50%
     ships = []
     for index in range(len(predictions)):
-        if predictions[index]  > 0.25:
+        if predictions[index]  > 0.99:
             ships.append(object_locations[index])
     
     #Create image with bounded boxes around predicted ships
-    bounded_image = ppm.create_bbox(curr_upr_image, ships, box_thickness=1)
+    bounded_image = ppm.create_bbox(curr_upr_image, ships, box_thickness=2)
     bounded_image_list.append(bounded_image)
 
 #Display one of the images

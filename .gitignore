@@ -3,4 +3,6 @@ small_images/
 smallShipData.json
 small_test_data.txt
 small_training_data.txt
-trained_CNN.h5
+other_small_test_data.json
+other_small_training_data.json
+*.h5
