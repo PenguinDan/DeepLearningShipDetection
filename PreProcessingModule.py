@@ -212,7 +212,7 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
     for x, y, width, height in bbox_set:
         cropped_image = image[y: y+ height, x: x+width]
         resized_image = cv2.resize(cropped_image, (set_width, set_height), interpolation = cv2.INTER_CUBIC)
-        images.append(cropped_image)
+        images.append(resized_image)
         
     return images
     
