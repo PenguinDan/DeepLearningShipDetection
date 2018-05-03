@@ -14,9 +14,9 @@ def get_unprocessed_image_files():
 
     #Retrieve image paths
     for root, dirs, files in os.walk(Constants.IMAGE_FILE_LOCATION):
-        image_file_list = files;
+        image_file_list = files
 
-    return image_file_list;
+    return image_file_list
 
 
 #############################################################################
@@ -89,7 +89,7 @@ def get_pr_images(max_images = 1,greyscale=None, greyscale_threshhold = 80):
 
         #Break if we pre-processed enough images
         if counter == max_images:
-            break;
+            break
 
     #Return the list of Image objects
     return image_list
@@ -212,6 +212,10 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
     for x, y, width, height in bbox_set:
         cropped_image = image[y: y+ height, x: x+width]
         resized_image = cv2.resize(cropped_image, (set_width, set_height), interpolation = cv2.INTER_CUBIC)
+<<<<<<< HEAD
+=======
+
+>>>>>>> c749a2e2566931fdee181a9356ec702b6285e5b3
         images.append(resized_image)
         
     return images
