@@ -16,16 +16,16 @@ Make sure to move the json file with small images and everything else to folder 
 The main file used to preprocess the images 
 * PreProcessingModule.py
  * Provides the following methods:
-  * Create a bounding box around specific locations in the image
-  * Denoise the image using OpenCV's kernel techniques
-  * Scale the images in such a way that their dimensional features are not lost
-  * Normalize image data to provide simpler data as an input to the Object Detection Algorithm
-  * Binary greyscaling using a threshhold to provide simpler data as an input to the Object Detection Algorithm
+   * Create a bounding box around specific locations in the image
+   * Denoise the image using OpenCV's kernel techniques
+   * Scale the images in such a way that their dimensional features are not lost
+   * Normalize image data to provide simpler data as an input to the Object Detection Algorithm
+   * Binary greyscaling using a threshhold to provide simpler data as an input to the Object Detection Algorithm
   
 ## Object Detection Algorithm
 The main file used to output region proposals from the large satellite images
 * ObjectDetection.py
- * Ouputs a list of region proposals run on preprocessed data
+  * Ouputs a list of region proposals run on preprocessed data
  
 ## Working with the CNNs
 The main files used to create, train, test, and save the CNNs were:
