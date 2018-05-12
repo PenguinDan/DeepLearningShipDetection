@@ -137,7 +137,7 @@ def saveImage(image, file_name = "test.png"):
 #############################################################################
 def create_bbox(image, bbox_locations, box_thickness = 3):
     for x, y, width, height in bbox_locations:
-        cv2.rectangle(image, (x,y), (x+width, y+height), (255, 0, 0), box_thickness)
+        cv2.rectangle(image, (x,y), (x+width, y+height), (255, 255, 255), box_thickness)
     return image
 
 ##############################################################################
@@ -208,3 +208,25 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
         images.append(resized_image)
 
     return images
+<<<<<<< HEAD
+=======
+
+##############################################################################
+#Reshapes all images to the specified shape
+#############################################################################  
+def reshape_data(data, new_shape):
+    new_data = []
+    #Iteratively crop the images and put them into a list
+    for i in range(len(data)):
+        img = data[i]
+        img = img.astype("uint8")
+        resized_image = cv2.resize(img, new_shape, interpolation = cv2.INTER_CUBIC)
+
+        new_data.append(resized_image)
+        
+    return new_data
+    
+    
+    
+    
+>>>>>>> 58c164a8e4a2b320c1d26caf82b64fff6f696c03

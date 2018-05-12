@@ -4,7 +4,8 @@ import glob
 import os
 import Constants
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
+from PreProcessingModule import reshape_data
+from keras.preprocessing.image import array_to_img, img_to_array, load_img
 
 #Extracts the data from the small ship images along with their labels, divdes the data into training and testing data, and saves these into two seperate files
 def extract_images():
@@ -95,8 +96,8 @@ def divide_data():
     test_file.close()
     training_file.close()
 
-#Returns the image data along with their respective labels    
-def load_data(data_location):
+#Returns the image data along with their respective labels
+def load_data(data_location, data_size=(80,80)):
     
     #Load data from file
     json_dataset = json.load(open(data_location))
@@ -108,25 +109,10 @@ def load_data(data_location):
     for img in json_dataset['data']:
         data.append(np.transpose(np.resize(img, (3,80,80))))
 
+    data = reshape_data(data, data_size)
+    data = np.asarray(data)
+
     return np.array(data), np.array(labels)
-
-
-#Returns an object that augments the dataset during training       
-def data_augmentation(x, y):
-    datagen = ImageDataGenerator(
-        rotation_range=45,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        zoom_range = 0.2,
-        horizontal_flip=True,
-        vertical_flip=True,
-        fill_mode='nearest'
-    )
-
-    return datagen.flow(x, y, batch_size=50)
-  
-# load_data(Constants.TEST_SMALL_IMAGE_DATASET)
-# extract_images()
 
 
 

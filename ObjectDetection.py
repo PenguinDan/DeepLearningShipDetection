@@ -1,33 +1,10 @@
 import numpy as np
-from skimage.filters import sobel
-from skimage import morphology
-from scipy import ndimage as ndi
 
 test_weight = 0
 
-def detect(ship_img, activation_weight_threshhold = 3000, max_weight_threshhold = 8000, 
+def detect(original_img, activation_weight_threshhold = 3000, max_weight_threshhold = 8000, 
            stride_size = 100):
-    # Region-based segmentation
-    # =========================
-    #
-    # We therefore try a region-based method using the watershed transform.
-    # First, we find an elevation map using the Sobel gradient of the image.
-    elevation_map = sobel(ship_img)
-
-    ######################################################################
-    # Next we find markers of the background and the coins based on the extreme
-    # parts of the histogram of grey values.
-    markers = np.zeros_like(ship_img)
-    markers[ship_img < 30] = 1
-    markers[ship_img > 100] = 2
-
-    ######################################################################
-    # Finally, we use the watershed transform to fill regions of the elevation
-    # map starting from the markers determined above:
-    curr_img = morphology.watershed(elevation_map, markers)
-    curr_img = ndi.binary_fill_holes(curr_img - 1)
-    curr_img = curr_img * 1
-    curr_img = curr_img.astype('uint8')
+    curr_img = original_img / 255
     
     #Store the position of all of the bounding boxes
     objectList = []
@@ -35,9 +12,9 @@ def detect(ship_img, activation_weight_threshhold = 3000, max_weight_threshhold 
     global MAX_Y_AXIS
     global test_weight
     #Initialize the max index for the X axis
-    MAX_X_AXIS = ship_img.shape[1]
+    MAX_X_AXIS = curr_img.shape[1]
     #Initialize the max index for the Y axis
-    MAX_Y_AXIS = ship_img.shape[0]
+    MAX_Y_AXIS = curr_img.shape[0]
     #The starting and ending position of where the sliding windows is at
     start_x = 0;
     start_y = 0;
@@ -59,7 +36,7 @@ def detect(ship_img, activation_weight_threshhold = 3000, max_weight_threshhold 
             #Calculate the current weight for the current sliding window position
             curr_weight = find_weight(curr_img, start_x, end_x, start_y, end_y)
             if(curr_weight < activation_weight_threshhold):
-                objectList.extend(find_object(curr_img, max_weight_threshhold, start_x, end_x, start_y, end_y))
+                objectList.extend(find_object(original_img, curr_img, max_weight_threshhold, start_x, end_x, start_y, end_y))
                 objectList.remove([])
             #Set the start X position to the end poistion of the previous iteration
             start_x = end_x
@@ -68,15 +45,14 @@ def detect(ship_img, activation_weight_threshhold = 3000, max_weight_threshhold 
         end_x = 0
         #Set the start_y position to end_y
         start_y = end_y
-        
     return objectList
 
 #Find the weight for the specific poistion
 def find_weight(img, start_x, end_x, start_y, end_y):
     return np.sum(img[start_y:end_y,start_x:end_x])
 
-#Check if there an object within the given position
-def find_object(curr_img, max_weight_threshhold, start_x, end_x, start_y, end_y):
+#Check if there a possible object within the given position
+def find_object(original_img, curr_img, max_weight_threshhold, start_x, end_x, start_y, end_y):
     possible_locations = [[]]
     global test_weight
     x = 0
@@ -90,19 +66,51 @@ def find_object(curr_img, max_weight_threshhold, start_x, end_x, start_y, end_y)
                     all_positions = find_y_axis_down(curr_img, curr_x, curr_y_axis)
                     all_positions.extend(find_y_axis_up(curr_img, curr_x, curr_y_axis))
                     if(test_weight < max_weight_threshhold):
-                        x, y, width, length, curr_img = remove_object(curr_img, all_positions)
+                        x, y, width, length, curr_img = remove_object(original_img, curr_img, all_positions)
                         possible_locations.append([x,y,width,length])
                         test_weight = 0
                     else:
-                        remove_object(curr_img, all_positions)
+                        remove_object(original_img, curr_img, all_positions)
                     test_weight = 0
 
     return possible_locations
 
+#Find the rest of the object below the starting y position
+def find_y_axis_down(curr_img, start_x, start_y):
+    curr_y = start_y
+    curr_x_start = start_x
+    curr_x_end = get_end_x_position(curr_img, start_x, curr_y)
+    indexList = [[curr_y, curr_x_start, curr_x_end]]
+    while True:
+        curr_y += 1
+        if(curr_y + 1 < MAX_Y_AXIS and np.sum(curr_img[curr_y][curr_x_start:curr_x_end]) > 0):
+            curr_x_start = get_start_x_position(curr_img, curr_x_start, curr_x_end, curr_y)
+            curr_x_end = get_end_x_position(curr_img, curr_x_start, curr_y) + 1
+            indexList.append([curr_y, curr_x_start, curr_x_end])
+        else:
+            break
+    return indexList
+
+#Find the rest of the object above the starting y position
+def find_y_axis_up(curr_img, start_x, start_y):
+    curr_y = start_y
+    curr_x_start = start_x
+    curr_x_end = get_end_x_position(curr_img, start_x, curr_y)
+    indexList = [[curr_y, curr_x_start, curr_x_end]]
+    while True:
+        curr_y -= 1
+        if(curr_y > 0 and np.sum(curr_img[curr_y][curr_x_start:curr_x_end]) > 0):
+            curr_x_start = get_start_x_position(curr_img, curr_x_start, curr_x_end, curr_y)
+            curr_x_end = get_end_x_position(curr_img, curr_x_end, curr_y)
+            indexList.append([curr_y, curr_x_start, curr_x_end])
+        else:
+            break
+    return indexList
+
 #Get the starting X position
 def get_start_x_position(curr_img, start_x, end_x, curr_y):
     curr_x_position = start_x
-    if(curr_img[curr_y][start_x] == 1):
+    if(curr_img[curr_y][curr_x_position] == 1):
         while True:
             #Check to make sure is in a valid index
             if(curr_x_position - 1 > 0):
@@ -127,73 +135,44 @@ def get_start_x_position(curr_img, start_x, end_x, curr_y):
     return curr_x_position
 
 #Get the ending X position
-def get_end_x_position(curr_img, start_x, curr_y):
+def get_end_x_position(curr_img, curr_x_end, curr_y):
     global test_weight 
-    curr_x_position = start_x
+    curr_x_position = curr_x_end
     #Try to find where the X axis will end
     while True:
         if(curr_x_position == MAX_X_AXIS - 1 or curr_img[curr_y][curr_x_position + 1] == 0):
             break
         else:
             curr_x_position += 1
-    test_weight += curr_x_position - start_x
+    test_weight += curr_x_position - curr_x_end
     return curr_x_position
 
-#Find the rest of the object above the starting y position
-def find_y_axis_up(curr_img, start_x, start_y):
-    curr_y = start_y
-    curr_x_start = start_x
-    curr_x_end = get_end_x_position(curr_img, start_x, curr_y)
-    indexList = [[curr_y, curr_x_start, curr_x_end]]
-    while True:
-        curr_y -= 1
-        if(curr_y > 0 and np.sum(curr_img[curr_y][curr_x_start:curr_x_end]) > 0):
-            curr_x_start = get_start_x_position(curr_img, curr_x_start, curr_x_end, curr_y)
-            curr_x_end = get_end_x_position(curr_img, curr_x_start, curr_y) + 1
-            if(curr_x_end == -1):
-                break;
-            else:
-                indexList.append([curr_y, curr_x_start, curr_x_end])
-        else:
-            break
-    return indexList
-
-#Find the rest of the object below the starting y position
-def find_y_axis_down(curr_img, start_x, start_y):
-    curr_y = start_y
-    curr_x_start = start_x
-    curr_x_end = get_end_x_position(curr_img, start_x, curr_y)
-    indexList = [[curr_y, curr_x_start, curr_x_end]]
-    while True:
-        curr_y += 1
-        if(curr_y + 1 < MAX_Y_AXIS and np.sum(curr_img[curr_y][curr_x_start:curr_x_end]) > 0):
-            curr_x_start = get_start_x_position(curr_img, curr_x_start, curr_x_end, curr_y)
-            curr_x_end = get_end_x_position(curr_img, curr_x_start, curr_y) + 1
-            indexList.append([curr_y, curr_x_start, curr_x_end])
-        else:
-            break
-    return indexList
-
 #Remove the object form the current image
-def remove_object(curr_img, indexList):
-    smallestX = indexList[0][1]
-    smallestY = indexList[0][0]
-    biggestX = indexList[0][2]
-    biggestY = indexList[0][0]
-    for y, start_x, end_x in indexList:
-        if(start_x < smallestX):
-            smallestX = start_x
-        if(biggestX < end_x):
-            biggestX = end_x
-        if(y < smallestY):
-            smallestY = y
-        elif(biggestY < y):
-            biggestY = y
-        curr_img[y][start_x:end_x] = curr_img[y][start_x:end_x] * 0
+def remove_object(original_img, curr_img, index_list):
+    y_list, start_x_list, end_x_list = zip(*index_list)
+    smallestX = np.min(start_x_list)
+    biggestX = np.max(end_x_list)
+    smallestY = np.min(y_list)
+    biggestY = np.max(y_list)
+    for y, start_x, end_x in index_list:
+        temp_end_x = end_x
+        if(np.sum(curr_img[y][end_x:biggestX]) != 0):
+            if(y > 0 and y < MAX_Y_AXIS - 1):
+                while(True):
+                    if(temp_end_x == MAX_X_AXIS - 1):
+                        break;
+                    elif(original_img[y + 1][temp_end_x] == 0 or original_img[y-1][temp_end_x] == 0):
+                        temp_end_x +=1
+                    else:
+                        break;
+            else:
+                temp_end_x = biggestX
+                    
+        curr_img[y][start_x:temp_end_x + 1] = curr_img[y][start_x:temp_end_x + 1] * 0
+        
     if(smallestX > 5):
         smallestX -= 5
     if(smallestY > 5):
         smallestY -= 5
-
-
+        
     return smallestX, smallestY, biggestX - smallestX + 10, biggestY - smallestY + 10, curr_img
