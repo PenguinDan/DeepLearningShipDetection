@@ -28,27 +28,18 @@ def cv_opening(img, kernel) :
 
 
 #############################################################################
-#Dilation followed by erosion to plug in holes in the image
-#############################################################################
-def cv_closing(img, kernel) :
-    closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-    return closing
-
-
-#############################################################################
 #Cleans the image by plugging holes and removing noise
 #############################################################################
 #Cleans the image and combines spaces on the image
 def clean_image(img, kernel) :
     img = cv_opening(img, kernel)
-    img = cv_closing(img, kernel)
     #Dilate the image in order to fill in empty spots
-    dilation_kernel = np.ones((4,4), np.uint8)  
+    dilation_kernel = np.ones((5,5), np.uint8)
     img = cv2.dilate(img, dilation_kernel, iterations = 2)
     #Attempt to return the objects to their normal sizes
-    erosion_kernel = np.ones((2,2), np.uint8)
+    erosion_kernel = np.ones((3,3), np.uint8)
     img = cv2.erode(img, erosion_kernel, iterations = 1)
-                
+
     return img
 
 ##############################################################################
@@ -84,6 +75,8 @@ def get_pr_images(max_images = 1,greyscale=None, greyscale_threshhold = 80):
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
         #Clean the image
         image = clean_image(image, kernel)
+        #Normalize the image matrix
+        image = normalize_image(image)
         #Append the object onto the list
         image_list.append(image)
 
@@ -212,16 +205,6 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
     for x, y, width, height in bbox_set:
         cropped_image = image[y: y+ height, x: x+width]
         resized_image = cv2.resize(cropped_image, (set_width, set_height), interpolation = cv2.INTER_CUBIC)
-<<<<<<< HEAD
-=======
-
->>>>>>> c749a2e2566931fdee181a9356ec702b6285e5b3
         images.append(resized_image)
-        
+
     return images
-    
-    
-    
-    
-    
-    
