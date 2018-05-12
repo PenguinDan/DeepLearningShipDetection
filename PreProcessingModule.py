@@ -75,8 +75,6 @@ def get_pr_images(max_images = 1,greyscale=None, greyscale_threshhold = 80):
             image = cv2.imread(Constants.IMAGE_FILE_LOCATION + file_name, cv2.IMREAD_UNCHANGED)
         #Clean the image
         image = clean_image(image, kernel)
-        #Normalize the image matrix
-        image = normalize_image(image)
         #Append the object onto the list
         image_list.append(image)
 
@@ -107,9 +105,9 @@ def get_upr_images(max_images = 1) :
 #############################################################################
 def normalize_image(image, reverse = False) :
     if reverse == False:
-        image /= 255
+        image = image / 255
     else:
-        image *= 255
+        image = image * 255
 
     return image
 
@@ -208,12 +206,11 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
         images.append(resized_image)
 
     return images
-<<<<<<< HEAD
-=======
+
 
 ##############################################################################
 #Reshapes all images to the specified shape
-#############################################################################  
+#############################################################################
 def reshape_data(data, new_shape):
     new_data = []
     #Iteratively crop the images and put them into a list
@@ -223,10 +220,5 @@ def reshape_data(data, new_shape):
         resized_image = cv2.resize(img, new_shape, interpolation = cv2.INTER_CUBIC)
 
         new_data.append(resized_image)
-        
+
     return new_data
-    
-    
-    
-    
->>>>>>> 58c164a8e4a2b320c1d26caf82b64fff6f696c03

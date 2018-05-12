@@ -1,11 +1,11 @@
 import numpy as np
+import PreProcessingModule as ppm
 
 test_weight = 0
 
 def detect(original_img, activation_weight_threshhold = 3000, max_weight_threshhold = 8000, 
            stride_size = 100):
-    curr_img = original_img / 255
-    
+    curr_img = ppm.normalize_image(original_img)
     #Store the position of all of the bounding boxes
     objectList = []
     global MAX_X_AXIS
