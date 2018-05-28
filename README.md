@@ -1,6 +1,9 @@
 # DeepLearningProject
 The goal for this project was to correctly detect and classify ships in large satellite images using a Convolutional Neural Network (CNN) that was trained on 80x80 images of ship and non-ship data in conjunction with a custom object detection algorithm.  Our approach is able to efficiently and accurately detect ships in satellite images of varying size ratios. In comparison to an approach found on Kaggle.com that uses a sliding window across the entire image to detect the ships in 15 minutes, our pipeline is able to detect and output bounding boxes in under 5 seconds.
 
+## Official Report
+[Project Report](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/object-detection-classification.pdf)
+
 ## Before you Run the Project
 Download the dataset from the following link:<br>
 https://www.kaggle.com/rhammell/ships-in-satellite-imagery <br>
