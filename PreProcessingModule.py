@@ -28,27 +28,18 @@ def cv_opening(img, kernel) :
 
 
 #############################################################################
-#Dilation followed by erosion to plug in holes in the image
-#############################################################################
-def cv_closing(img, kernel) :
-    closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-    return closing
-
-
-#############################################################################
 #Cleans the image by plugging holes and removing noise
 #############################################################################
 #Cleans the image and combines spaces on the image
 def clean_image(img, kernel) :
     img = cv_opening(img, kernel)
-    img = cv_closing(img, kernel)
     #Dilate the image in order to fill in empty spots
-    dilation_kernel = np.ones((4,4), np.uint8)  
+    dilation_kernel = np.ones((5,5), np.uint8)
     img = cv2.dilate(img, dilation_kernel, iterations = 2)
     #Attempt to return the objects to their normal sizes
-    erosion_kernel = np.ones((2,2), np.uint8)
+    erosion_kernel = np.ones((3,3), np.uint8)
     img = cv2.erode(img, erosion_kernel, iterations = 1)
-                
+
     return img
 
 ##############################################################################
@@ -114,9 +105,9 @@ def get_upr_images(max_images = 1) :
 #############################################################################
 def normalize_image(image, reverse = False) :
     if reverse == False:
-        image /= 255
+        image = image / 255
     else:
-        image *= 255
+        image = image * 255
 
     return image
 
@@ -144,7 +135,7 @@ def saveImage(image, file_name = "test.png"):
 #############################################################################
 def create_bbox(image, bbox_locations, box_thickness = 3):
     for x, y, width, height in bbox_locations:
-        cv2.rectangle(image, (x,y), (x+width, y+height), (255, 0, 0), box_thickness)
+        cv2.rectangle(image, (x,y), (x+width, y+height), (255, 255, 255), box_thickness)
     return image
 
 ##############################################################################
@@ -212,13 +203,22 @@ def crop(image, bbox_set, set_width = 80, set_height = 80) :
     for x, y, width, height in bbox_set:
         cropped_image = image[y: y+ height, x: x+width]
         resized_image = cv2.resize(cropped_image, (set_width, set_height), interpolation = cv2.INTER_CUBIC)
-
         images.append(resized_image)
-        
+
     return images
-    
-    
-    
-    
-    
-    
+
+
+##############################################################################
+#Reshapes all images to the specified shape
+#############################################################################
+def reshape_data(data, new_shape):
+    new_data = []
+    #Iteratively crop the images and put them into a list
+    for i in range(len(data)):
+        img = data[i]
+        img = img.astype("uint8")
+        resized_image = cv2.resize(img, new_shape, interpolation = cv2.INTER_CUBIC)
+
+        new_data.append(resized_image)
+
+    return new_data
