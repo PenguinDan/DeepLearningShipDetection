@@ -42,3 +42,17 @@ The main files used to create, train, test, and save the CNNs were:
     * Loading a given file of data
 * Constants.py
   * Contains the paths to where the different CNN models are saved as well as a short description on their differences
+  
+## Project Pipeline
+### Original Image
+![original image](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/1.png)
+### After Image Preprocessing
+![preprocessed image](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/2.png)
+### Object Detection
+![object detection](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/3.png)
+### After Second Image Preprocessing
+![image preprocessing 2](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/4.png)
+### Our Output
+![output](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/5-ours.png)
+### Kaggle Output
+![comp output](https://github.com/PenguinDan/DeepLearningShipDetection/blob/master/Report%20Folder/image-pipeline/5-comp.png)
